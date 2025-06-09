@@ -161,7 +161,7 @@ def Session(lib, session, tree, **kwargs):
                 proxies=settings["proxies"],
                 headers=settings["headers"],
                 cookies=settings["cookies"],
-                **kwargs
+                **kwargs,
             )
 
         def r_req(self, url: str, kwargs: dict, method: str = "get"):
