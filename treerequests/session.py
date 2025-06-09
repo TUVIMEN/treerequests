@@ -44,10 +44,17 @@ def Session(lib, session, tree, **kwargs):
             logger = settings.get("logger", -1)
 
             for i in self._settings.keys():
-                if remove:
-                    dest[i] = settings.pop(i, self._settings[i])
+                val = settings.get(i, self._settings[i])
+
+                if i == "headers" or i == "cookies" or i == "proxies":
+                    if dest.get(i) is None:
+                        dest[i] = {}
+                    dest[i].update(val)
                 else:
-                    dest[i] = settings.get(i, self._settings[i])
+                    dest[i] = val
+
+                if remove:
+                    settings.pop(i, None)
 
             if user_agent != -1:
                 dest["headers"].update({"User-Agent": newagent(*dest["user_agent"])})
@@ -56,6 +63,18 @@ def Session(lib, session, tree, **kwargs):
             if logger != -1:
                 dest["_logger"] = create_logger(logger)
             return dest
+
+        def _settings_update(self):
+            self.proxies.update(self["proxies"])
+            self["proxies"] = {}
+            self.headers.update(self["headers"])
+            self["headers"] = {}
+            self.cookies.update(self["cookies"])
+            self["cookies"] = {}
+
+        def set_settings(self, settings: dict, remove=True):
+            self.get_settings(settings, dest=self._settings, remove=remove)
+            self._settings_update()
 
         def __getitem__(self, key):
             return self._settings[key]
@@ -106,12 +125,7 @@ def Session(lib, session, tree, **kwargs):
 
             super().__init__(**settings)
 
-            self.proxies.update(self["proxies"])
-            self["proxies"] = {}
-            self.headers.update(self["headers"])
-            self["headers"] = {}
-            self.cookies.update(self["cookies"])
-            self["cookies"] = {}
+            self._settings_update()
 
             self.new_user_agent()
             self.new_browser()

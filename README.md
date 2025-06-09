@@ -23,7 +23,7 @@ There are no explicit dependencies for this project, libraries will be imported 
 
 ```python
 import sys, argparse, requests
-from treerequests import args_section, args_session, lxml
+from treerequests import Session, args_section, args_session, lxml
 
 requests_prefix = "requests"
 
@@ -36,15 +36,20 @@ args_section(
 )
 
 args = parser.parse_args(sys.argv[1:])
-ses = args_session(
-    args,
+ses = Session(
     requests,
     requests.Session,
     lxml, # default html parser for get_html()
+    wait=0.1
+)
+
+# update session by parsed arguments
+args_session(
+    ses,
+    args,
     prefix=requests_prefix,
     raise=True, # raise when requests fail
     timeout=12,
-    wait=0.1,
     user_agent=[('desktop','linux',('firefox','chrome'))] # user agent will be chosen randomly from linux desktop, firefox or chrome agents
 )
 
@@ -197,6 +202,8 @@ You can get settings by treating session like a `dict` like `ses['wait']`, value
 
 `get_settings(self, settings: dict, dest: dict = {}, remove: bool = True) -> dict` method can be used to create settings dictionary while removing fields from original dictionary (depends on `remove`).
 
+`set_settings(self, settings: dict, remove: bool = True)` works similar to `get_settings()` but updates the session with settings.
+
 ### visited
 
 `visited` field is a `set()` of used urls, that are collected if `visited` setting is `True`.
@@ -303,18 +310,19 @@ args = parser.parse_args(sys.argv[1:])
 
 ## args_session()
 
-`args_session(args, lib, session, tree, prefix="", rename=[], **settings)` function returns `Session()` with settings derived from `parsearg` values in `args`. `lib`, `session` and `tree` work the same as for `Session()`. `prefix` and `rename` should be the same as was specified for `args_section()`. You can pass additional `settings` as defaults, since they will be overwritten by parsed arguments.
+`args_session(session, args, prefix="", rename=[], **settings)` updates `session` settings with `parsearg` values in `args`. `prefix` and `rename` should be the same as was specified for `args_section()`. You can pass additional `settings`, parsed arguments take precedence above previous settings.
 
 ```python
 import sys, argparse, requests
-from treerequests import args_section, args_session, lxml
+from treerequests import Session, args_section, args_session, lxml
 
 parser = argparse.ArgumentParser(description="some cli tool")
 section_rename = ["location"]
 args_section(parser,rename=section_rename)
 
 args = parser.parse_args(sys.argv[1:])
-ses = args_session(args, requests, requests.Session, lxml, rename=section_rename)
+session = Session(requests, requests.Session, lxml)
+args_session(session, args, rename=section_rename)
 
 tree = ses.get_html("https://www.youtube.com/")
 ```

@@ -3,8 +3,6 @@ import argparse
 import re
 import ast
 
-from .session import Session
-
 
 def conv_curl_header_to_requests(src):
     r = re.search(r"^\s*([A-Za-z0-9_-]+)\s*:(.*)$", src)
@@ -275,11 +273,9 @@ def finish_headers(headers, cookies):
 
 
 def args_session(
-    args,
-    lib,
     session,
-    tree,
-    prefix="",
+    args,
+    prefix: str = "",
     rename: list[Tuple[str, str] | Tuple[str] | str] = [],
     **settings,
 ):
@@ -323,4 +319,4 @@ def args_session(
     setarg("user_agent")
     setarg("browser")
 
-    return Session(lib, session, tree, **settings)
+    session.set_settings(settings, remove=False)
