@@ -10,12 +10,12 @@ A wrapper around `requests` like libraries, common html parsers, user agents, `b
 
 There are no explicit dependencies for this project, libraries will be imported when explicitly called. The possible modules are:
 
-- browser_cookie3
-- bs4
-- html5_parser
-- selectolax
-- lxml
-- reliq
+- [browser_cookie3](https://github.com/borisbabic/browser_cookie3)
+- [bs4](https://pypi.org/project/beautifulsoup4/)
+- [html5_parser](https://github.com/kovidgoyal/html5-parser)
+- [selectolax](https://github.com/rushter/selectolax)
+- [lxml](https://github.com/lxml/lxml)
+- [reliq](https://github.com/TUVIMEN/reliq-python)
 
 # Usage
 
