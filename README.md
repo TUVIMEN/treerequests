@@ -31,7 +31,7 @@ parser = argparse.ArgumentParser(description="some cli tool")
 args_section(
     parser,
     name="requests section"
-    noshortargs=None, # disable shortargs
+    noshortargs=True, # disable shortargs
     prefix=requests_prefix # make all arguments start with "--requests-"
 )
 
@@ -144,7 +144,7 @@ from reliq import RQ
 from treerequests import reliq, Session
 import requests
 
-reliq2 = RQ(cached=yes)
+reliq2 = RQ(cached=True)
 ses = Session(requests, requests.Session, lambda x, y: reliq(x,y,obj=reliq2))
 ```
 
@@ -247,7 +247,7 @@ print(tree.xpath('//title/text()')[0])
 args_section(
     parser,
     name: str = "Request settings",
-    noshortargs: Optional[list[str]] = [],
+    noshortargs: bool = False,
     prefix: str = "",
     rename: list[Tuple[str, str] | Tuple[str] | str] = [],
 )
@@ -268,7 +268,8 @@ args_section(
     parser,
     name="Settings of requests",
     prefix="request",
-    noshortargs=["w","B","b","h"] # don't define these shortargs
+    noshortargs=True,
+    rename=["location",("wait","requests-delay"),("user-agent","ua")] # remove --location, rename --requests-wait to --requests-delay and --requests-user-agent to --ua
 )
 
 args = parser.parse_args(sys.argv[1:])
@@ -309,10 +310,11 @@ import sys, argparse, requests
 from treerequests import args_section, args_session, lxml
 
 parser = argparse.ArgumentParser(description="some cli tool")
-args_section(parser)
+section_rename = ["location"]
+args_section(parser,rename=section_rename)
 
 args = parser.parse_args(sys.argv[1:])
-ses = args_session(args, requests, requests.Session, lxml)
+ses = args_session(args, requests, requests.Session, lxml, rename=section_rename)
 
 tree = ses.get_html("https://www.youtube.com/")
 ```
