@@ -326,3 +326,21 @@ args_session(session, args, rename=section_rename)
 
 tree = ses.get_html("https://www.youtube.com/")
 ```
+
+## simple_logger()
+
+`simple_logger(dest: list | str | Path | io.TextIOWrapper | Callable)` creates a simpler version of `logger` setting of `Session` where only urls are logged.
+
+```python
+import sys, requests
+from treerequests import Session, bs4, simple_logger
+
+s1 = Session(requests, requests.Session, bs4, logger=sys.stdout)
+s2 = Session(requests, requests.Session, bs4, logger=simple_logger(sys.stdout))
+
+s1.get('https://youtube.com')
+# prints get\thttps://youtube.com\tFalse
+
+s2.get('https://youtube.com')
+# prints https://youtube.com
+```

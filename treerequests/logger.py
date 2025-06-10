@@ -15,11 +15,12 @@ class Logger:
 
     def log(self, *args):
         dest = self.dest
-        if isinstance(dest, list):
-            dest.append(args)
-            return
         if isinstance(dest, Callable):
             dest(args)
+            return
+
+        if isinstance(dest, list):
+            dest.append(args)
             return
 
         s = "\t".join(str(i) for i in args)
@@ -44,3 +45,15 @@ def create_logger(
 
     log = Logger(dest)
     return log.log
+
+
+def simple_logger(dest: list | str | Path | io.TextIOWrapper | Callable):
+    class Lg(Logger):
+        def log(self, *args):
+            if len(args) != 3:
+                assert 0
+
+            super().log(args[1])
+
+    log = Lg(dest)
+    return lambda x: log.log(*x)
