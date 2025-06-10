@@ -155,7 +155,7 @@ ses = Session(requests, requests.Session, lambda x, y: reliq(x,y,obj=reliq2))
 
 ## Session()
 
-`Session(lib, session, tree, alreadyvisitederror=None, requesterror=None, **settings)` creates and returns object that inherits from `session` argument, `lib` is the module from which `session` is derived, `tree` is a html parser function. You change raised errors by setting `alreadyvisitederror` and `requesterror`.
+`Session(lib, session, tree, alreadyvisitederror=None, requesterror=None, **settings)` creates and returns object that inherits from `session` argument, `lib` is the module from which `session` is derived, `tree` is a html parser function. You can change raised errors by setting `alreadyvisitederror` and `requesterror`.
 
 Settings are passed by `settings`, and also can be passed to all request methods `get`, `post`, `head`, `get_html`, `get_json` etc. where they don't change settings of their session.
 
