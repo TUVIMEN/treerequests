@@ -32,13 +32,21 @@ def newbrowser(browser: Optional[str | Callable]) -> dict:
     return getattr(browser_cookie3, browser)()
 
 
-def Session(lib, session, tree, **kwargs):
+def _ua(user_agent):
+    if isinstance(user_agent, str):
+        return [user_agent]
+    return user_agent
+
+
+def Session(lib, session, tree, alreadyvisitederror=None, requesterror=None, **kwargs):
     orig_tree = tree
 
     class ret_obj(session):
         def get_settings(
             self, settings: dict, dest: dict = {}, remove: bool = True
         ) -> dict:
+            other = dest != self._settings
+
             user_agent = settings.get("user_agent", -1)
             browser = settings.get("browser", -1)
             logger = settings.get("logger", -1)
@@ -56,9 +64,11 @@ def Session(lib, session, tree, **kwargs):
                 if remove:
                     settings.pop(i, None)
 
-            if user_agent != -1:
-                dest["headers"].update({"User-Agent": newagent(*dest["user_agent"])})
-            if browser != -1:
+            if other and user_agent != -1:
+                dest["headers"].update(
+                    {"User-Agent": newagent(*_ua(dest["user_agent"]))}
+                )
+            if other and browser != -1:
                 dest["cookies"].update(newbrowser(dest["browser"]))
             if logger != -1:
                 dest["_logger"] = create_logger(logger)
@@ -80,7 +90,7 @@ def Session(lib, session, tree, **kwargs):
             return self._settings[key]
 
         def new_user_agent(self):
-            self.headers.update({"User-Agent": newagent(*self["user_agent"])})
+            self.headers.update({"User-Agent": newagent(*_ua(self["user_agent"]))})
 
         def new_browser(self):
             self.cookies.update(newbrowser(self["browser"]))
@@ -186,7 +196,10 @@ def Session(lib, session, tree, **kwargs):
             if settings["visited"]:
                 with self._lock:
                     if url in self.visited:
-                        raise AlreadyVisitedError(url)
+                        if alreadyvisitederror is not None:
+                            raise alreadyvisitederror(url)
+                        else:
+                            raise AlreadyVisitedError(url)
 
             instant_end_code = [400, 401, 402, 403, 404, 410, 412, 414, 421, 505]
 
@@ -202,7 +215,11 @@ def Session(lib, session, tree, **kwargs):
                     lib.exceptions.ChunkedEncodingError,
                 ) as e:
                     if i > tries:
-                        raise e
+                        if requesterror:
+                            raise requesterror()
+                        else:
+                            raise e
+
                     ok = False
                 else:
                     ok = resp.ok
@@ -216,7 +233,14 @@ def Session(lib, session, tree, **kwargs):
                     and resp.status_code in instant_end_code
                 ) or i > tries:
                     if settings["raise"]:
-                        resp.raise_for_status()
+                        try:
+                            resp.raise_for_status()
+                        except Exception as e:
+                            if requesterror:
+                                raise requesterror()
+                            else:
+                                raise e
+
                     return resp
 
                 i += 1
