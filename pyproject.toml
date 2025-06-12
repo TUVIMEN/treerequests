@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "treerequests"
-version = "0.0.4"
+version = "0.0.5"
 description = "A wrapper for requests for integration with html tree parsers"
 readme = "README.md"
 requires-python = ">=3.8"
