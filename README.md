@@ -155,7 +155,7 @@ ses = Session(requests, requests.Session, lambda x, y: reliq(x,y,obj=reliq2))
 
 ## Session()
 
-`Session(lib, session, tree, alreadyvisitederror=None, requesterror=None, **settings)` creates and returns object that inherits from `session` argument, `lib` is the module from which `session` is derived, `tree` is a html parser function. You can change raised errors by setting `alreadyvisitederror` and `requesterror`.
+`Session(lib, session, tree, alreadyvisitederror=None, requesterror=None, redirectionerror=None, **settings)` creates and returns object that inherits from `session` argument, `lib` is the module from which `session` is derived, `tree` is a html parser function. You can change raised errors by setting `alreadyvisitederror`, `requesterror`, `redirectionerror`.
 
 Settings are passed by `settings`, and also can be passed to all request methods `get`, `post`, `head`, `get_html`, `get_json` etc. where they don't change settings of their session.
 
@@ -172,7 +172,9 @@ print(resp.status_code)
 
 `timeout=30` request timeout
 
-`allow_redirects=False` allow for redirections
+`allow_redirects=False` follow redirections
+
+`redirects=False` if set to `False` `RedirectionError()` will be raised if redirection happens
 
 `retries=2`  number of retries attempted in case of failure
 
@@ -192,7 +194,7 @@ print(resp.status_code)
 
 `browser=None` get cookies from browsers by `browser_cookie3` lib, can be set to string name of function e.g. `browser="firefox"` or a to any function that returns `dict` of cookies without taking arguments.
 
-`visited=False` keep track of visited urls and raise exception if attempt to redownload happens `treerequests.AlreadyVisitedError()` exception is raised
+`visited=False` keep track of visited urls and raise exception if attempt to redownload happens `treerequests.AlreadyVisitedError()` exception is raised.
 
 `logger=None` log events, if set to `str`, `Path` or file object writes events in lines where things are separated by `'\t'`. If set to `list` event tuple is appended. It can be set to arbitrary function that takes single `tuple` argument.
 
