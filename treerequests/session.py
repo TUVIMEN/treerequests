@@ -183,9 +183,9 @@ def Session(
                     time.sleep(random.randint(0, settings["wait_random"] + 1) / 1000)
 
             visited = settings["visited"]
-            if (not retry and visited is not None) or settings["_logger"] is not None:
+            if (not retry and visited) or settings["_logger"] is not None:
                 with self._lock:
-                    if not retry and visited is not None:
+                    if not retry and visited:
                         self.visited.add(url)
                     if settings["_logger"] is not None:
                         settings["_logger"](method, url, retry)
