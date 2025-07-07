@@ -118,8 +118,6 @@ In other cases arguments restrict amount of choices. If tuples of strings are pa
 
 `newagent( 'desktop', 'phone' )` get desktop or phone agent (tuples can be dropped)
 
-`newagent( 'desktop', 'phone' )` get desktop or phone agent (tuples can be dropped)
-
 `newagent( ('desktop', 'linux') )` get desktop linux agent
 
 `newagent( ('desktop', 'linux', 'firefox') )` get agent of firefox from linux on desktop
