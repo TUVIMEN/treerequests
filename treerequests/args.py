@@ -156,8 +156,8 @@ def args_section(
     add(
         "W",
         "wait-random",
-        "Sets random waiting time for each request to be at max MILISECONDS",
-        metavar="MILISECONDS",
+        "Sets random waiting time for each request to be at max MILLISECONDS",
+        metavar="MILLISECONDS",
         type=int,
     )
     add(
