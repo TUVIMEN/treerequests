@@ -66,11 +66,18 @@ def Session(
 
     class ret_obj(session):
         def get_settings(
-            self, settings: dict, dest: dict = {}, remove: bool = True
+            self, settings: dict, dest: Optional[dict] = None, remove: bool = True
         ) -> dict:
+            passed = False
+            if settings.get('__treerequests_passed'):
+                settings.pop('__treerequests_passed')
+                passed = True
+
             user_agent = settings.get("user_agent", -1)
             browser = settings.get("browser", -1)
             logger = settings.get("logger", -1)
+            if dest is None:
+                dest = {}
 
             for i in self._settings.keys():
                 val = settings.get(i, self._settings[i])
@@ -85,14 +92,14 @@ def Session(
                 if remove:
                     settings.pop(i, None)
 
-            if user_agent != -1:
+            if not passed and user_agent != -1:
                 dest["headers"].update(
                     {"User-Agent": newagent(*_ua(dest["user_agent"]))}
                 )
-            if browser != -1:
+            if not passed and browser is not None and browser != -1:
                 dest['cookies'] = cookie_obj_init(dest['cookies'])
                 dest["cookies"].update(newbrowser(dest["browser"]))
-            if logger != -1:
+            if not passed and logger != -1:
                 dest["_logger"] = create_logger(logger)
             return dest
 
@@ -200,7 +207,8 @@ def Session(
                     if settings["_logger"] is not None:
                         settings["_logger"](method, url, retry)
 
-            return getattr(super(), method)(
+            return self.request(
+                method,
                 url,
                 verify=settings["verify"],
                 allow_redirects=settings["allow_redirects"],
@@ -305,6 +313,8 @@ def Session(
             self, url: str, response: bool = False, tree: Callable = None, **settings
         ) -> Any | Tuple[Any, Any]:
             settings = self.get_settings(settings)
+            settings['__treerequests_passed'] = True
+
             resp = self.get(url, **settings)
 
             text = resp.text
