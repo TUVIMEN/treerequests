@@ -41,6 +41,16 @@ def _ua(user_agent):
         return [user_agent]
     return user_agent
 
+def get_cookiejar_init(lib):
+    try:
+        return lib.cookies.RequestsCookieJar
+    except Exception:
+        pass
+    try:
+        return lib.cookies.Cookies
+    except Exception:
+        pass
+    raise Exception("Couldn't find type for cookie jar")
 
 def Session(
     lib,
@@ -52,13 +62,12 @@ def Session(
     **kwargs,
 ):
     orig_tree = tree
+    cookie_obj_init = get_cookiejar_init(lib)
 
     class ret_obj(session):
         def get_settings(
             self, settings: dict, dest: dict = {}, remove: bool = True
         ) -> dict:
-            other = dest != self._settings
-
             user_agent = settings.get("user_agent", -1)
             browser = settings.get("browser", -1)
             logger = settings.get("logger", -1)
@@ -76,11 +85,12 @@ def Session(
                 if remove:
                     settings.pop(i, None)
 
-            if other and user_agent != -1:
+            if user_agent != -1:
                 dest["headers"].update(
                     {"User-Agent": newagent(*_ua(dest["user_agent"]))}
                 )
-            if other and browser != -1:
+            if browser != -1:
+                dest['cookies'] = cookie_obj_init(dest['cookies'])
                 dest["cookies"].update(newbrowser(dest["browser"]))
             if logger != -1:
                 dest["_logger"] = create_logger(logger)
@@ -110,7 +120,7 @@ def Session(
         def __setitem__(self, item, value):
             x = self._settings[item]
             self._settings[item] = value
-            if x != value:
+            if type(x) is type(value) and x != value:
                 if item == "user_agent":
                     self.new_user_agent()
                 if item == "browser":

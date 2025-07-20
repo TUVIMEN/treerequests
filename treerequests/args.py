@@ -257,9 +257,12 @@ def finish_headers(headers, cookies):
     for i in headers:
         ret.update(i)
 
-    cookie = headers.get("Cookie")
-    if cookie is None:
+    cookie = list(
+        filter(lambda x: x is not None, map(lambda x: x.get("Cookie"), headers))
+    )
+    if len(cookie) == 0:
         return ret
+    cookie = cookie[0]
 
     ret.pop("Cookie")
     for i in cookie.split(";"):
