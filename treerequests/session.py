@@ -200,7 +200,7 @@ def Session(
                 if settings["wait"] != 0:
                     time.sleep(settings["wait"])
                 if settings["wait_random"] != 0:
-                    time.sleep(random.randint(0, settings["wait_random"] + 1) / 1000)
+                    time.sleep(random.random() * settings["wait_random"])
 
             visited = settings["visited"]
             if (not retry and visited) or settings["_logger"] is not None:

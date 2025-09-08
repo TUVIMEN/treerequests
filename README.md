@@ -182,7 +182,7 @@ print(resp.status_code)
 
 `wait=0`  waiting time for each request in seconds
 
-`wait_random=0` random waiting time up to specified milliseconds
+`wait_random=0` random waiting time from 0 to specified value in seconds
 
 `trim=False` trim whitespaces from html before passing to parser in `get_html`
 
@@ -298,7 +298,7 @@ args = parser.parse_args(sys.argv[1:])
 
 `-w, --wait TIME` wait before requests, time follows the `sleep(1)` format of suffixes e.g. `2.8`, `2.8s`, `5m`, `1h`, `1d`
 
-`-W, --wait-random MILLISECONDS` wait randomly up to specified milliseconds
+`-W, --wait-random TIME` wait randomly for each request from 0 to TIME
 
 `-r, --retries NUM` number of retries in case of failure
 
