@@ -220,6 +220,12 @@ Updates cookies from browser session.
 
 `new(self, independent=False, **settings)` creates copy of current object, if `independent` is `visited` will become a different object and `logger` will be set to `None`.
 
+### req()
+
+`req(self, url: str, method: str = "get", **settings)`
+
+Makes a request with http method specified by `method`, returns normal response. Should be used instead of `request()`.
+
 ### get_html()
 
 `get_html(self, url: str, response: bool = False, tree: Callable = None, **settings)`
@@ -227,6 +233,10 @@ Updates cookies from browser session.
 Makes a GET request to `url` expecting html and returns parser object. Parser can be changed by setting `tree` to appropriate function.
 
 If `response` is set response object is returned alongside parser.
+
+`post_html()`, `delete_html()`, `put_json()`, `patch_json()` use different http methods according to their naming.
+
+`html()` has optional method `method: str = "get"` that specifies http method used.
 
 ```python
 import requests
@@ -244,9 +254,13 @@ print(tree.xpath('//title/text()')[0])
 
 ### get_json()
 
-`get_json(self, url: str, **settings) -> dict`
+`get_json(self, url: str, response: bool = False, **settings) -> dict | Tuple[dict, Any]`
 
-`get_json()`, `post_json()`, `delete_json()`, `put_json()`, `patch_json()` take `url` and `**settings` as arguments and return `dict`, making requests using method according to their naming, while expecting json.
+If `response` is set response object is returned alongside parser.
+
+`get_json()`, `post_json()`, `delete_json()`, `put_json()`, `patch_json()` take `url` and `**settings` as arguments and return `dict`, making requests using method according to their naming, while expecting json as output.
+
+`json()` works the same way, but accepts optional parameter `method: str = "get"` to signify http method used for request.
 
 ## args_section()
 

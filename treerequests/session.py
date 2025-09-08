@@ -41,6 +41,7 @@ def _ua(user_agent):
         return [user_agent]
     return user_agent
 
+
 def get_cookiejar_init(lib):
     try:
         return lib.cookies.RequestsCookieJar
@@ -51,6 +52,7 @@ def get_cookiejar_init(lib):
     except Exception:
         pass
     raise Exception("Couldn't find type for cookie jar")
+
 
 def Session(
     lib,
@@ -69,8 +71,8 @@ def Session(
             self, settings: dict, dest: Optional[dict] = None, remove: bool = True
         ) -> dict:
             passed = False
-            if settings.get('__treerequests_passed'):
-                settings.pop('__treerequests_passed')
+            if settings.get("__treerequests_passed"):
+                settings.pop("__treerequests_passed")
                 passed = True
 
             user_agent = settings.get("user_agent", -1)
@@ -92,15 +94,16 @@ def Session(
                 if remove:
                     settings.pop(i, None)
 
-            if not passed and user_agent != -1:
-                dest["headers"].update(
-                    {"User-Agent": newagent(*_ua(dest["user_agent"]))}
-                )
-            if not passed and browser is not None and browser != -1:
-                dest['cookies'] = cookie_obj_init(dest['cookies'])
-                dest["cookies"].update(newbrowser(dest["browser"]))
-            if not passed and logger != -1:
-                dest["_logger"] = create_logger(logger)
+            if not passed:
+                if user_agent != -1:
+                    dest["headers"].update(
+                        {"User-Agent": newagent(*_ua(dest["user_agent"]))}
+                    )
+                if browser is not None and browser != -1:
+                    dest["cookies"] = cookie_obj_init(dest["cookies"])
+                    dest["cookies"].update(newbrowser(dest["browser"]))
+                if logger != -1:
+                    dest["_logger"] = create_logger(logger)
             return dest
 
         def _settings_update(self):
@@ -185,7 +188,7 @@ def Session(
                 r._lock = self._lock
             return r
 
-        def r_req_try(
+        def req_try(
             self,
             url: str,
             method: str,
@@ -219,7 +222,7 @@ def Session(
                 **kwargs,
             )
 
-        def r_req(self, url: str, kwargs: dict, method: str = "get"):
+        def req(self, url: str, method: str = "get", **settings):
             settings = self.get_settings(kwargs)
 
             tries = settings["retries"]
@@ -238,7 +241,7 @@ def Session(
             while True:
                 resp = None
                 try:
-                    resp = self.r_req_try(url, method, settings, kwargs, retry=(i != 0))
+                    resp = self.req_try(url, method, settings, kwargs, retry=(i != 0))
                 except (
                     lib.ConnectTimeout,
                     lib.ConnectionError,
@@ -289,33 +292,38 @@ def Session(
                     time.sleep(retry_wait)
 
         def get(self, url: str, **settings):
-            return self.r_req(url, settings, method="get")
+            return self.req(url, settings, method="get")
 
         def post(self, url: str, **settings):
-            return self.r_req(url, settings, method="post")
+            return self.req(url, settings, method="post")
 
         def head(self, url: str, **settings):
-            return self.r_req(url, settings, method="head")
+            return self.req(url, settings, method="head")
 
         def put(self, url: str, **settings):
-            return self.r_req(url, settings, method="put")
+            return self.req(url, settings, method="put")
 
         def delete(self, url: str, **settings):
-            return self.r_req(url, settings, method="delete")
+            return self.req(url, settings, method="delete")
 
         def options(self, url: str, **settings):
-            return self.r_req(url, settings, method="options")
+            return self.req(url, settings, method="options")
 
         def patch(self, url: str, **settings):
-            return self.r_req(url, settings, method="patch")
+            return self.req(url, settings, method="patch")
 
-        def get_html(
-            self, url: str, response: bool = False, tree: Callable = None, **settings
+        def html(
+            self,
+            url: str,
+            response: bool = False,
+            tree: Callable = None,
+            method: str = "get",
+            **settings,
         ) -> Any | Tuple[Any, Any]:
             settings = self.get_settings(settings)
-            settings['__treerequests_passed'] = True
+            settings["__treerequests_passed"] = True
 
-            resp = self.get(url, **settings)
+            resp = self.req(url, settings, method=method)
 
             text = resp.text
             if settings["trim"]:
@@ -327,24 +335,91 @@ def Session(
 
             return (r, resp) if response else r
 
-        def get_json(self, url: str, **settings) -> dict:
-            resp = self.get(url, **settings)
-            return resp.json()
+        def delete_html(
+            self,
+            url: str,
+            response: bool = False,
+            tree: Callable = None,
+            **settings,
+        ) -> Any | Tuple[Any, Any]:
+            return self.html(
+                url, response=response, tree=tree, method="delete", **settings
+            )
 
-        def post_json(self, url: str, **settings) -> dict:
-            resp = self.post(url, **settings)
-            return resp.json()
+        def put_html(
+            self,
+            url: str,
+            response: bool = False,
+            tree: Callable = None,
+            **settings,
+        ) -> Any | Tuple[Any, Any]:
+            return self.html(
+                url, response=response, tree=tree, method="put", **settings
+            )
 
-        def delete_json(self, url: str, **settings) -> dict:
-            resp = self.delete(url, **settings)
-            return resp.json()
+        def patch_html(
+            self,
+            url: str,
+            response: bool = False,
+            tree: Callable = None,
+            **settings,
+        ) -> Any | Tuple[Any, Any]:
+            return self.html(
+                url, response=response, tree=tree, method="patch", **settings
+            )
 
-        def put_json(self, url: str, **settings) -> dict:
-            resp = self.put(url, **settings)
-            return resp.json()
+        def post_html(
+            self,
+            url: str,
+            response: bool = False,
+            tree: Callable = None,
+            **settings,
+        ) -> Any | Tuple[Any, Any]:
+            return self.html(
+                url, response=response, tree=tree, method="post", **settings
+            )
 
-        def patch_json(self, url: str, **settings) -> dict:
-            resp = self.patch(url, **settings)
-            return resp.json()
+        def get_html(
+            self,
+            url: str,
+            response: bool = False,
+            tree: Callable = None,
+            **settings,
+        ) -> Any | Tuple[Any, Any]:
+            return self.html(
+                url, response=response, tree=tree, method="get", **settings
+            )
+
+        def json(
+            self, url: str, response: bool = False, method="get", **settings
+        ) -> dict | Tuple[dict, Any]:
+            resp = self.req(url, settings, method=method)
+            r = resp.json()
+            return (r, resp) if response else r
+
+        def get_json(
+            self, url: str, response: bool = False, **settings
+        ) -> dict | Tuple[dict, Any]:
+            return self.json(url, response=response, method="get", **settings)
+
+        def post_json(
+            self, url: str, response: bool = False, **settings
+        ) -> dict | Tuple[dict, Any]:
+            return self.json(url, response=response, method="post", **settings)
+
+        def delete_json(
+            self, url: str, response: bool = False, **settings
+        ) -> dict | Tuple[dict, Any]:
+            return self.json(url, response=response, method="delete", **settings)
+
+        def put_json(
+            self, url: str, response: bool = False, **settings
+        ) -> dict | Tuple[dict, Any]:
+            return self.json(url, response=response, method="put", **settings)
+
+        def patch_json(
+            self, url: str, response: bool = False, **settings
+        ) -> dict | Tuple[dict, Any]:
+            return self.json(url, response=response, method="patch", **settings)
 
     return ret_obj(**kwargs)
