@@ -292,25 +292,25 @@ def Session(
                     time.sleep(retry_wait)
 
         def get(self, url: str, **settings):
-            return self.req(url, settings, method="get")
+            return self.req(url, method="get", **settings)
 
         def post(self, url: str, **settings):
-            return self.req(url, settings, method="post")
+            return self.req(url, method="post", **settings)
 
         def head(self, url: str, **settings):
-            return self.req(url, settings, method="head")
+            return self.req(url, method="head", **settings)
 
         def put(self, url: str, **settings):
-            return self.req(url, settings, method="put")
+            return self.req(url, method="put", **settings)
 
         def delete(self, url: str, **settings):
-            return self.req(url, settings, method="delete")
+            return self.req(url, method="delete", **settings)
 
         def options(self, url: str, **settings):
-            return self.req(url, settings, method="options")
+            return self.req(url, method="options", **settings)
 
         def patch(self, url: str, **settings):
-            return self.req(url, settings, method="patch")
+            return self.req(url, method="patch", **settings)
 
         def html(
             self,
@@ -323,7 +323,7 @@ def Session(
             settings = self.get_settings(settings)
             settings["__treerequests_passed"] = True
 
-            resp = self.req(url, settings, method=method)
+            resp = self.req(url, method=method, **settings)
 
             text = resp.text
             if settings["trim"]:
@@ -393,7 +393,7 @@ def Session(
         def json(
             self, url: str, response: bool = False, method="get", **settings
         ) -> dict | Tuple[dict, Any]:
-            resp = self.req(url, settings, method=method)
+            resp = self.req(url, method=method, **settings)
             r = resp.json()
             return (r, resp) if response else r
 
