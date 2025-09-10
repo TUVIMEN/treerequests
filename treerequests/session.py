@@ -247,6 +247,8 @@ def Session(
                     lib.ConnectionError,
                     lib.ReadTimeout,
                     lib.exceptions.ChunkedEncodingError,
+                    lib.TooManyRedirects,
+                    lib.HTTPError,
                 ) as e:
                     if i > tries:
                         if requesterror:
