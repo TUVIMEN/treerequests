@@ -222,7 +222,7 @@ def Session(
                 **kwargs,
             )
 
-        def req(self, url: str, method: str = "get", **settings):
+        def req(self, url: str, method: str = "get", **kwargs):
             settings = self.get_settings(kwargs)
 
             tries = settings["retries"]
