@@ -189,10 +189,10 @@ def Session(
                 r._lock = self._lock
             return r
 
-        def req_try(
+        def request_try(
             self,
-            url: str,
             method: str,
+            url: str,
             settings: dict,
             kwargs: dict,
             retry: bool = False,
@@ -211,7 +211,7 @@ def Session(
                     if settings["_logger"] is not None:
                         settings["_logger"](method, url, retry)
 
-            return self.request(
+            return super().request(
                 method,
                 url,
                 verify=settings["verify"],
@@ -223,7 +223,7 @@ def Session(
                 **kwargs,
             )
 
-        def req(self, url: str, method: str = "get", **kwargs):
+        def request(self, method: str, url: str, **kwargs):
             settings = self.get_settings(kwargs)
 
             tries = settings["retries"]
@@ -242,7 +242,9 @@ def Session(
             while True:
                 resp = None
                 try:
-                    resp = self.req_try(url, method, settings, kwargs, retry=(i != 0))
+                    resp = self.request_try(
+                        method, url, settings, kwargs, retry=(i != 0)
+                    )
                 except (
                     lib.ConnectTimeout,
                     lib.ConnectionError,
@@ -304,25 +306,25 @@ def Session(
                     time.sleep(retry_wait)
 
         def get(self, url: str, **settings):
-            return self.req(url, method="get", **settings)
+            return self.request("get", url, **settings)
 
         def post(self, url: str, **settings):
-            return self.req(url, method="post", **settings)
+            return self.request("post", url, **settings)
 
         def head(self, url: str, **settings):
-            return self.req(url, method="head", **settings)
+            return self.request("head", url, **settings)
 
         def put(self, url: str, **settings):
-            return self.req(url, method="put", **settings)
+            return self.request("put", url, **settings)
 
         def delete(self, url: str, **settings):
-            return self.req(url, method="delete", **settings)
+            return self.request("delete", url, **settings)
 
         def options(self, url: str, **settings):
-            return self.req(url, method="options", **settings)
+            return self.request("options", url, **settings)
 
         def patch(self, url: str, **settings):
-            return self.req(url, method="patch", **settings)
+            return self.request("patch", url, **settings)
 
         def html(
             self,
@@ -335,7 +337,7 @@ def Session(
             settings = self.get_settings(settings)
             settings["__treerequests_passed"] = True
 
-            resp = self.req(url, method=method, **settings)
+            resp = self.request(method, url, **settings)
 
             text = resp.text
             if settings["trim"]:
@@ -405,7 +407,7 @@ def Session(
         def json(
             self, url: str, response: bool = False, method="get", **settings
         ) -> dict | Tuple[dict, Any]:
-            resp = self.req(url, method=method, **settings)
+            resp = self.request(method, url, **settings)
             r = resp.json()
             return (r, resp) if response else r
 

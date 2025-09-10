@@ -220,9 +220,9 @@ Updates cookies from browser session.
 
 `new(self, independent=False, **settings)` creates copy of current object, if `independent` is `visited` will become a different object and `logger` will be set to `None`.
 
-### req()
+### request()
 
-`req(self, url: str, method: str = "get", **settings)`
+`request(self, method: str, url: str, **settings)`
 
 Makes a request with http method specified by `method`, returns normal response. Should be used instead of `request()`.
 
