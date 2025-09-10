@@ -145,6 +145,7 @@ def Session(
                 "cookies": {},
                 "timeout": 30,
                 "verify": True,
+                "failures": False,
                 "allow_redirects": False,
                 "redirects": False,
                 "retries": 2,
@@ -259,6 +260,15 @@ def Session(
                     ok = False
                 else:
                     ok = resp.ok
+
+                if resp is not None and (
+                    settings["failures"]
+                    or (
+                        isinstance(settings["failures"], list)
+                        and resp.status_code in settings["failures"]
+                    )
+                ):
+                    return resp
 
                 if ok:
                     if (
