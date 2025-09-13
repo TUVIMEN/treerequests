@@ -72,6 +72,30 @@ def valid_time(time):
     return num * weight
 
 
+def valid_timeout(format):
+    def check_time(time):
+        time = time.strip()
+        if time == "" or time == "-":
+            return None
+        return valid_time(time)
+
+    times = format.split(".")
+    timesl = len(times)
+    try:
+        if timesl == 1:
+            return check_time(times[0])
+        elif timesl == 2:
+            return (check_time(times[0]), check_time(times[1]))
+    except argparse.ArgumentTypeError as e:
+        raise argparse.ArgumentTypeError(
+            "incorrect timeout format: " + str.join(" ", e.args)
+        )
+
+    raise argparse.ArgumentTypeError(
+        'incorrect timeout format "{}": too many values', format
+    )
+
+
 def arg_name(name, rename: list[Tuple[str]]) -> Optional[Tuple[str, bool]]:
     if name is None:
         return
@@ -183,9 +207,9 @@ def args_section(
     add(
         "m",
         "timeout",
-        "Sets request timeout",
-        metavar="TIME",
-        type=valid_time,
+        "Sets request timeout, if in TIME format it'll be set for the whole request. If in TIME,TIME format first TIME will specify connection timeout, the second read timeout. If set to '-' timeout is disabled",
+        metavar="TIMEOUT",
+        type=valid_timeout,
     )
     add(
         "k",
