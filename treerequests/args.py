@@ -168,7 +168,7 @@ def args_section(
         help = help.replace("{.}", r)
 
         a = [i for i in (shortarg, longarg) if i is not None]
-        section.add_argument(*a, default=None, help=help, **kwargs)
+        section.add_argument(*a, help=help, **kwargs)
 
     add(
         "w",
@@ -224,6 +224,7 @@ def args_section(
         action="store_true",
     )
     add(
+        None,
         "max-redirs",
         "Set the maximum number of redirections to follow",
         metavar="NUM",
