@@ -12,10 +12,6 @@ class AlreadyVisitedError(Exception):
     pass
 
 
-class RedirectionError(Exception):
-    pass
-
-
 def smarttrim(src):
     # turns " \v i am a   \a \n \n \a test  \a " to "i am a test"
 
@@ -60,7 +56,6 @@ def Session(
     tree,
     alreadyvisitederror=None,
     requesterror=None,
-    redirectionerror=None,
     **kwargs,
 ):
     orig_tree = tree
@@ -147,7 +142,6 @@ def Session(
                 "verify": True,
                 "failures": False,
                 "allow_redirects": False,
-                "redirects": False,
                 "retries": 2,
                 "retry_wait": 5,
                 "force_retry": False,
@@ -273,16 +267,6 @@ def Session(
                     return resp
 
                 if ok:
-                    if (
-                        not settings["redirects"]
-                        and resp.status_code >= 300
-                        and resp.status_code < 400
-                    ):
-                        if redirectionerror:
-                            raise redirectionerror()
-                        else:
-                            raise RedirectionError()
-
                     return resp
 
                 if (

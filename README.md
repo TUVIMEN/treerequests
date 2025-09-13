@@ -153,7 +153,7 @@ ses = Session(requests, requests.Session, lambda x, y: reliq(x,y,obj=reliq2))
 
 ## Session()
 
-`Session(lib, session, tree, alreadyvisitederror=None, requesterror=None, redirectionerror=None, **settings)` creates and returns object that inherits from `session` argument, `lib` is the module from which `session` is derived, `tree` is a html parser function. You can change raised errors by setting `alreadyvisitederror`, `requesterror`, `redirectionerror`.
+`Session(lib, session, tree, alreadyvisitederror=None, requesterror=None, **settings)` creates and returns object that inherits from `session` argument, `lib` is the module from which `session` is derived, `tree` is a html parser function. You can change raised errors by setting `alreadyvisitederror`, `requesterror`.
 
 Settings are passed by `settings`, and also can be passed to all request methods `get`, `post`, `head`, `get_html`, `get_json` etc. where they don't change settings of their session.
 
@@ -171,8 +171,6 @@ print(resp.status_code)
 `timeout=30` request timeout
 
 `allow_redirects=False` follow redirections
-
-`redirects=False` if set to `False` `RedirectionError()` will be raised if redirection happens
 
 `retries=2`  number of retries attempted in case of failure
 
