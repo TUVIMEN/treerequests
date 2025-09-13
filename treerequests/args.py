@@ -200,6 +200,13 @@ def args_section(
         action="store_true",
     )
     add(
+        "max-redirs",
+        "Set the maximum number of redirections to follow",
+        metavar="NUM",
+        default=30,
+        type=int,
+    )
+    add(
         "A",
         "user-agent",
         "Sets custom user agent",
@@ -314,6 +321,7 @@ def args_session(
     setarg("proxies")
     setarg("insecure", dest="verify")
     setarg("location", dest="allow_redirects")
+    setarg("max_redirs", dest="max_redirects")
     setarg("retry")
     setarg("retry_delay")
     setarg("retry_all_errors")
