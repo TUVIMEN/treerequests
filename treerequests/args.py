@@ -4,13 +4,6 @@ import re
 import ast
 
 
-def conv_curl_header_to_requests(src):
-    r = re.search(r"^\s*([A-Za-z0-9_-]+)\s*:(.*)$", src)
-    if r is None:
-        return None
-    return {r[1]: r[2].strip()}
-
-
 def conv_curl_cookie_to_requests(src):
     r = re.search(r"^\s*([A-Za-z0-9_-]+)\s*=(.*)$", src)
     if r is None:
@@ -18,11 +11,35 @@ def conv_curl_cookie_to_requests(src):
     return {r[1]: r[2].strip()}
 
 
+def valid_header_line(header):
+    header = header.strip()
+    part = header.partition(":")
+
+    if part[1] == "" and ((name := header[-1:]) == ";"):
+        return (name.rstrip(), "")
+
+    if part[1] == "" or not re.fullmatch(r"[a-zA-Z0-9#$%^&*+/`~_|.?-')]+", part[0]):
+        raise argparse.ArgumentTypeError('Invalid header "{}"'.format(header))
+    return (part[0], part[2].lstrip())
+
+
+def valid_header_file(headers):
+    ret = []
+    for i in headers.split("\n"):
+        ret.append(valid_header_line(i))
+    return ret
+
+
 def valid_header(src):
-    r = conv_curl_header_to_requests(src)
-    if r is None:
-        raise argparse.ArgumentTypeError('Invalid header "{}"'.format(src))
-    return r
+    if src[:1] == "@":
+        filename = src[1:]
+        if filename == "-":
+            filename = "/dev/stdin"
+        with open(filename, "r") as f:
+            data = f.read()
+        return valid_header_file(data)
+
+    return valid_header_file(src)
 
 
 def valid_cookie(src):
@@ -250,7 +267,7 @@ def args_section(
         "Set curl style header, can be used multiple times e.g. {.} 'User: Admin' {.} 'Pass: 12345'",
         metavar="HEADER",
         type=valid_header,
-        action="append",
+        action="extend",
     )
     add(
         "b",
@@ -285,17 +302,21 @@ def finish_headers(headers, cookies):
     if headers is None:
         return ret
 
-    for i in headers:
-        ret.update(i)
+    for name, value in headers:
+        name = name.lower()
+        if ret.get(name) is None:
+            ret[name] = value
+        else:
+            ret[name] += "," + value
 
-    cookie = list(
-        filter(lambda x: x is not None, map(lambda x: x.get("Cookie"), headers))
-    )
+    cookie = [value for name, value in headers if name.lower() == "cookie"]
+
+    ret.pop("cookie", None)
+
     if len(cookie) == 0:
         return ret
     cookie = cookie[0]
 
-    ret.pop("Cookie")
     for i in cookie.split(";"):
         pair = i.split("=")
         name = pair[0].strip()
