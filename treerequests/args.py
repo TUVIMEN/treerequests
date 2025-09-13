@@ -162,7 +162,7 @@ def args_section(
     )
     add(
         "r",
-        "retries",
+        "retry",
         "Sets number of retries for failed request to NUM",
         metavar="NUM",
         type=int,
@@ -314,7 +314,7 @@ def args_session(
     setarg("proxies")
     setarg("insecure", dest="verify")
     setarg("location", dest="allow_redirects")
-    setarg("retries")
+    setarg("retry")
     setarg("retry_wait")
     setarg("force_retry")
     setarg("wait")
