@@ -142,9 +142,10 @@ def Session(
                 "verify": True,
                 "failures": False,
                 "allow_redirects": False,
-                "retries": 2,
-                "retry_wait": 5,
-                "force_retry": False,
+                "max_redirects": 30,
+                "retry": 2,
+                "retry_delay": 5,
+                "retry_all_errors": False,
                 "wait": 0,
                 "wait_random": 0,
                 "trim": False,
@@ -220,8 +221,8 @@ def Session(
         def request(self, method: str, url: str, **kwargs):
             settings = self.get_settings(kwargs)
 
-            tries = settings["retries"]
-            retry_wait = settings["retry_wait"]
+            tries = settings["retry"]
+            retry_delay = settings["retry_delay"]
             if settings["visited"]:
                 with self._lock:
                     if url in self.visited:
@@ -271,7 +272,7 @@ def Session(
 
                 if (
                     resp is not None
-                    and not settings["force_retry"]
+                    and not settings["retry_all_errors"]
                     and resp.status_code in instant_end_code
                 ) or i > tries:
                     if settings["raise"]:
@@ -286,8 +287,8 @@ def Session(
                     return resp
 
                 i += 1
-                if retry_wait != 0:
-                    time.sleep(retry_wait)
+                if retry_delay != 0:
+                    time.sleep(retry_delay)
 
         def get(self, url: str, **settings):
             return self.request("get", url, **settings)

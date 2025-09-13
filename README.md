@@ -172,11 +172,13 @@ print(resp.status_code)
 
 `allow_redirects=False` follow redirections
 
-`retries=2`  number of retries attempted in case of failure
+`max_redirects=30` maximum number of redirections to follow
 
-`retry_wait=5` waiting time between retries in seconds
+`retry=2`  number of retries attempted in case of failure
 
-`force_retry=False` retry even if failure indicates it can't succeed
+`retry_delay=5` waiting time between retries in seconds
+
+`retry_all_errors=False` retry even if failure indicates it can't succeed
 
 `wait=0`  waiting time for each request in seconds
 
@@ -187,6 +189,8 @@ print(resp.status_code)
 `user_agent=[ ("desktop", "windows", ("firefox", "chrome")) ]` arguments passed to `newagent()` function to get user agent
 
 `raise=True` raise exceptions for failed requests
+
+`failures=False` If set to `True` return responses with http status codes indicating failure, if set to `list` of status codes e.g. `failures=[404,405]` return them ignoring failure indication.
 
 `browser=None` get cookies from browsers by `browser_cookie3` lib, can be set to string name of function e.g. `browser="firefox"` or a to any function that returns `dict` of cookies without taking arguments.
 
@@ -298,13 +302,13 @@ args = parser.parse_args(sys.argv[1:])
 
 `-W, --wait-random TIME` wait randomly for each request from 0 to TIME
 
-`-r, --retries NUM` number of retries in case of failure
+`-r, --retry NUM` number of retries in case of failure
 
-`--retry-wait TIME` waiting time before retrying
+`--retry-delay TIME` waiting time before retrying
 
-`--force-retry` retry even if status code indicates it can't succeed
+`--retry-all-errors` retry even if status code indicates it can't succeed
 
-`-m, --timeout TIME` request timeout
+`-m, --timeout TIMEOUT` request timeout, if in `TIME` format it'll be set for the whole request. If in `TIME,TIME` format first `TIME` will specify connection timeout, the second read timeout. If set to `-` timeout is disabled
 
 `-k, --insecure` ignore ssl errors
 
@@ -313,6 +317,8 @@ args = parser.parse_args(sys.argv[1:])
 `-B, --browser NAME` use cookies extracted from browser e.g. `firefox`, `chromium`, `chrome`, `safari`, `brave`, `opera`, `opera_gx` (requires `browser_cookie3` module)
 
 `-L, --location` Allow for redirections
+
+`--max-redirs NUM` Set the maximum number of redirections to follow
 
 `--proxies DICT` (where `DICT` is python stringified dictionary) are directly passed to requests library, e.g. `--proxies '{"http":"127.0.0.1:8080","ftp":"0.0.0.0"}'`.
 

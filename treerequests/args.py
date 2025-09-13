@@ -228,7 +228,6 @@ def args_section(
         "max-redirs",
         "Set the maximum number of redirections to follow",
         metavar="NUM",
-        default=30,
         type=int,
     )
     add(
