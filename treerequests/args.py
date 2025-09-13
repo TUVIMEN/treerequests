@@ -176,7 +176,7 @@ def args_section(
     )
     add(
         None,
-        "force-retry",
+        "retry-all-errors",
         "Retry no matter the error",
         action="store_true",
     )
@@ -316,7 +316,7 @@ def args_session(
     setarg("location", dest="allow_redirects")
     setarg("retry")
     setarg("retry_delay")
-    setarg("force_retry")
+    setarg("retry_all_errors")
     setarg("wait")
     setarg("wait_random")
     setarg("user_agent")
