@@ -169,7 +169,7 @@ def args_section(
     )
     add(
         None,
-        "retry-wait",
+        "retry-delay",
         "Sets interval between each retry",
         metavar="TIME",
         type=valid_time,
@@ -315,7 +315,7 @@ def args_session(
     setarg("insecure", dest="verify")
     setarg("location", dest="allow_redirects")
     setarg("retry")
-    setarg("retry_wait")
+    setarg("retry_delay")
     setarg("force_retry")
     setarg("wait")
     setarg("wait_random")
