@@ -231,7 +231,7 @@ def Session(
                         else:
                             raise AlreadyVisitedError(url)
 
-            instant_end_code = [400, 401, 402, 403, 404, 410, 412, 414, 421, 505]
+            transient_errors = [408, 429, 500, 502, 503, 504]
 
             i = 0
             while True:
@@ -272,8 +272,9 @@ def Session(
 
                 if (
                     resp is not None
+                    and (code := resp.status_code) >= 400
                     and not settings["retry_all_errors"]
-                    and resp.status_code in instant_end_code
+                    and code not in transient_errors
                 ) or i > tries:
                     if settings["raise"]:
                         try:
