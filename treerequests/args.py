@@ -1,7 +1,37 @@
 from typing import Optional, Tuple
 import argparse
 import re
-import ast
+
+
+def valid_proxy_line(proxy):
+    part = proxy.partition(":")
+
+    if part[1] == "":
+        return (part[0], "")
+
+    return (part[0], part[2].lstrip())
+
+
+def valid_proxy_file(proxies):
+    ret = []
+    for line in proxies.split("\n"):
+        line = line.strip()
+        if line == "":
+            continue
+        ret.append(valid_proxy_line(line))
+    return ret
+
+
+def valid_proxy(src):
+    if src[:1] == "@":
+        filename = src[1:]
+        if filename == "-":
+            filename = "/dev/stdin"
+        with open(filename, "r") as f:
+            data = f.read()
+        return valid_proxy_file(data)
+
+    return valid_proxy_file(src)
 
 
 def valid_header_line(header):
@@ -307,10 +337,11 @@ def args_section(
     )
     add(
         "x",
-        "proxies",
-        'Set requests proxies dictionary, e.g. {.} \'{"http":"127.0.0.1:8080","ftp":"0.0.0.0"}\'',
-        metavar="DICT",
-        type=lambda x: dict(ast.literal_eval(x)),
+        "proxy",
+        "Use the specified proxy, can be used multiple times. If set to URL it'll be used for all protocols, if in PROTOCOL URL format it'll be set only for given protocol, if in URL URL format it'll be set only for given path. If first character is '@' then headers are read from file",
+        metavar="PROXY",
+        action="extend",
+        type=valid_proxy,
     )
     add(
         "H",
@@ -337,6 +368,25 @@ def args_section(
     )
 
     return section
+
+
+def finish_proxies(proxies):
+    ret = {}
+    if proxies is None:
+        return ret
+
+    all_protocols = ["http", "https", "ftp", "sftp", "ftps"]
+
+    for name, value in proxies:
+        if value == "":
+            for i in all_protocols:
+                if ret.get(i) is not None:
+                    ret[i] = name
+        elif (x := name.lower()) in all_protocols:
+            ret[x] = value
+        else:
+            ret[name] = value
+    return ret
 
 
 def finish_cookies(cookies):
@@ -390,11 +440,9 @@ def args_session(
         else:
             return getattr(args, name)
 
-    cookies = finish_cookies(argval("cookie"))
-    headers = finish_headers(argval("header"), cookies)
-
-    settings["headers"] = headers
-    settings["cookies"] = cookies
+    settings["proxies"] = finish_proxies(argval("proxy"))
+    settings["cookies"] = finish_cookies(argval("cookie"))
+    settings["headers"] = finish_headers(argval("header"), settings["cookies"])
 
     def setarg(longarg: str, shortarg: str = None, dest: str = None):
         name = longarg
@@ -407,7 +455,6 @@ def args_session(
         settings[name] = value
 
     setarg("timeout")
-    setarg("proxies")
     setarg("insecure", dest="verify")
     setarg("location", dest="allow_redirects")
     setarg("max_redirs", dest="max_redirects")
