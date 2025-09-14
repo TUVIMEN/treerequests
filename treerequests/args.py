@@ -5,7 +5,6 @@ import ast
 
 
 def valid_header_line(header):
-    header = header.strip()
     part = header.partition(":")
 
     if part[1] == "" and ((name := header[-1:]) == ";"):
@@ -18,8 +17,11 @@ def valid_header_line(header):
 
 def valid_header_file(headers):
     ret = []
-    for i in headers.split("\n"):
-        ret.append(valid_header_line(i))
+    for line in headers.split("\n"):
+        line = line.strip()
+        if line == "":
+            continue
+        ret.append(valid_header_line(line))
     return ret
 
 
