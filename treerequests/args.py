@@ -4,13 +4,6 @@ import re
 import ast
 
 
-def conv_curl_cookie_to_requests(src):
-    r = re.search(r"^\s*([A-Za-z0-9_-]+)\s*=(.*)$", src)
-    if r is None:
-        return None
-    return {r[1]: r[2].strip()}
-
-
 def valid_header_line(header):
     header = header.strip()
     part = header.partition(":")
@@ -42,6 +35,13 @@ def valid_header(src):
     return valid_header_file(src)
 
 
+def conv_curl_cookie_to_requests(src):
+    r = re.search(r"^\s*([A-Za-z0-9_-]+)\s*=(.*)$", src)
+    if r is None:
+        return None
+    return {r[1]: r[2].strip()}
+
+
 def valid_cookie(src):
     r = conv_curl_cookie_to_requests(src)
     if r is None:
@@ -50,12 +50,44 @@ def valid_cookie(src):
 
 
 def valid_browser(browser):
+    browser = browser.strip()
+
+    def err():
+        raise argparse.ArgumentTypeError('no such browser "{}"'.format(browser))
+
+    if (
+        browser == ""
+        or not browser[:1].islower()
+        or browser
+        in (
+            "all_browsers",
+            "base64",
+            "json",
+            "http",
+            "load",
+            "shutil",
+            "sqlite3",
+            "struct",
+            "subprocess",
+            "sys",
+            "tempfile",
+            "lz4",
+            "glob",
+            "os",
+            "configparser",
+            "contextlib",
+            "open_dbus_connection",
+            "unpad",
+        )
+    ):
+        err()
+
     import browser_cookie3
 
     try:
         return getattr(browser_cookie3, browser)
     except AttributeError:
-        raise argparse.ArgumentTypeError('no such browser "{}"'.format(browser))
+        err()
 
 
 def valid_time(time):
