@@ -298,7 +298,7 @@ def args_section(
     add(
         "H",
         "header",
-        "Set curl style header, can be used multiple times e.g. {.} 'User: Admin' {.} 'Pass: 12345'",
+        "Set curl style header, can be used multiple times e.g. {.} 'User: Admin' {.} 'Pass: 12345', if first character is '@' then headers are read from file e.g. {.} @file",
         metavar="HEADER",
         type=valid_header,
         action="extend",
