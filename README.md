@@ -324,7 +324,7 @@ args = parser.parse_args(sys.argv[1:])
 
 `-H ,--header "Key: Value"` very similar to `curl` `--header` option, can be specified multiple times e.g. `--header 'User: Admin' --header 'Pass: 12345'`. Similar to `curl` `Cookie` header will be parsed like `Cookie: key1=value1; key2=value2` and will be changed to cookies. If first character is '@' then headers are read from file e.g. `--header @file`.
 
-`-b, --cookie "Key=Value"` very similar to `curl` `--cookie` option, can be specified multiple times e.g. `--cookie 'auth=8f82ab' --cookie 'PHPSESSID=qw3r8an829'`.
+`-b, --cookie "Key=Value"` very similar to `curl` `--cookie` option, can be specified multiple times e.g. `--cookie 'auth=8f82ab' --cookie 'PHPSESSID=qw3r8an829'`, without `=` character argument is read as a file.
 
 ## args_session()
 

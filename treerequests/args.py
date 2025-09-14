@@ -10,7 +10,7 @@ def valid_header_line(header):
     if part[1] == "" and ((name := header[-1:]) == ";"):
         return (name.rstrip(), "")
 
-    if part[1] == "" or not re.fullmatch(r"[a-zA-Z0-9#$%^&*+/`~_|.?-')]+", part[0]):
+    if part[1] == "" or not re.fullmatch(r"[a-zA-Z0-9#$%^&*+/`~_|.?'-]+", part[0]):
         raise argparse.ArgumentTypeError('Invalid header "{}"'.format(header))
     return (part[0], part[2].lstrip())
 
@@ -37,18 +37,35 @@ def valid_header(src):
     return valid_header_file(src)
 
 
-def conv_curl_cookie_to_requests(src):
-    r = re.search(r"^\s*([A-Za-z0-9_-]+)\s*=(.*)$", src)
-    if r is None:
-        return None
-    return {r[1]: r[2].strip()}
+def valid_cookie_line(cookie):
+    part = cookie.partition(":")
+
+    if part[1] == "":
+        raise argparse.ArgumentTypeError('Invalid cookie "{}"'.format(cookie))
+    return (part[0], part[2].lstrip())
+
+
+def valid_cookie_file(cookies):
+    ret = []
+    for line in cookies.replace("\n", ";").split(";"):
+        line = line.strip()
+        if line == "":
+            continue
+        ret.append(valid_cookie_line(line))
+    return ret
 
 
 def valid_cookie(src):
-    r = conv_curl_cookie_to_requests(src)
+    if src.find("=") == -1:
+        filename = src[1:]
+        if filename == "-":
+            filename = "/dev/stdin"
+        with open(filename, "r") as f:
+            data = f.read()
+        return valid_cookie_file(data)
+    return valid_cookie_file(src)
     if r is None:
         raise argparse.ArgumentTypeError('Invalid cookie "{}"'.format(src))
-    return r
 
 
 def valid_browser(browser):
@@ -306,10 +323,10 @@ def args_section(
     add(
         "b",
         "cookie",
-        "Set curl style cookie, can be used multiple times e.g. {.} 'auth=8f82ab' {.} 'PHPSESSID=qw3r8an829'",
+        "Set curl style cookie, can be used multiple times e.g. {.} 'auth=8f82ab' {.} 'PHPSESSID=qw3r8an829', without '=' character argument is read as a file",
         metavar="COOKIE",
         type=valid_cookie,
-        action="append",
+        action="extend",
     )
     add(
         "B",
@@ -326,8 +343,9 @@ def finish_cookies(cookies):
     ret = {}
     if cookies is None:
         return ret
-    for i in cookies:
-        ret.update(i)
+
+    for name, value in cookies:
+        ret[name] = value
     return ret
 
 
@@ -349,15 +367,7 @@ def finish_headers(headers, cookies):
 
     if len(cookie) == 0:
         return ret
-    cookie = cookie[0]
-
-    for i in cookie.split(";"):
-        pair = i.split("=")
-        name = pair[0].strip()
-        val = None
-        if len(pair) > 1:
-            val = pair[1].strip()
-        cookies.update({name: val})
+    cookies.update(finish_cookies(valid_cookie_file(cookie[0])))
     return ret
 
 
