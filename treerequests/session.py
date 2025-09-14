@@ -250,7 +250,7 @@ def Session(
                 ) as e:
                     if i > tries:
                         if requesterror:
-                            raise requesterror()
+                            raise requesterror(*e.args)
                         else:
                             raise e
 
@@ -281,7 +281,7 @@ def Session(
                             resp.raise_for_status()
                         except Exception as e:
                             if requesterror:
-                                raise requesterror()
+                                raise requesterror(*e.args)
                             else:
                                 raise e
 
