@@ -271,28 +271,28 @@ def args_section(
     add(
         "w",
         "wait",
-        "Sets waiting time for each request",
+        "Set waiting time for each request",
         metavar="TIME",
         type=valid_time,
     )
     add(
         "W",
         "wait-random",
-        "Sets random waiting time for each request to be from 0 to TIME",
+        "Set random waiting time for each request to be from 0 to TIME",
         metavar="TIME",
         type=valid_time,
     )
     add(
         "r",
         "retry",
-        "Sets number of retries for failed request to NUM",
+        "Set number of retries for failed request to NUM",
         metavar="NUM",
         type=int,
     )
     add(
         None,
         "retry-delay",
-        "Sets interval between each retry",
+        "Set interval between each retry",
         metavar="TIME",
         type=valid_time,
     )
@@ -305,7 +305,7 @@ def args_section(
     add(
         "m",
         "timeout",
-        "Sets request timeout, if in TIME format it'll be set for the whole request. If in TIME,TIME format first TIME will specify connection timeout, the second read timeout. If set to '-' timeout is disabled",
+        "Set request timeout, if in TIME format it'll be set for the whole request. If in TIME,TIME format first TIME will specify connection timeout, the second read timeout. If set to '-' timeout is disabled",
         metavar="TIMEOUT",
         type=valid_timeout,
     )
