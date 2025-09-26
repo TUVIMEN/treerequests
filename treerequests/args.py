@@ -68,7 +68,7 @@ def valid_header(src):
 
 
 def valid_cookie_line(cookie):
-    part = cookie.partition(":")
+    part = cookie.partition("=")
 
     if part[1] == "":
         raise argparse.ArgumentTypeError('Invalid cookie "{}"'.format(cookie))
