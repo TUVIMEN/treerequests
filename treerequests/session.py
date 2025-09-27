@@ -317,7 +317,8 @@ def Session(
             resp = self.request(method, url, **settings)
 
             text = resp.text
-            if settings["trim"]:
+            trim = settings.get("trim")
+            if (trim is None and self["trim"]) or trim is True:
                 text = smarttrim(text)
 
             if tree is None:
