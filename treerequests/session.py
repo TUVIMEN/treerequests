@@ -65,11 +65,6 @@ def Session(
         def get_settings(
             self, settings: dict, dest: Optional[dict] = None, remove: bool = True
         ) -> dict:
-            passed = False
-            if settings.get("__treerequests_passed"):
-                settings.pop("__treerequests_passed")
-                passed = True
-
             user_agent = settings.get("user_agent", -1)
             browser = settings.get("browser", -1)
             logger = settings.get("logger", -1)
@@ -89,16 +84,15 @@ def Session(
                 if remove:
                     settings.pop(i, None)
 
-            if not passed:
-                if user_agent != -1:
-                    dest["headers"].update(
-                        {"User-Agent": newagent(*_ua(dest["user_agent"]))}
-                    )
-                if browser is not None and browser != -1:
-                    dest["cookies"] = cookie_obj_init(dest["cookies"])
-                    dest["cookies"].update(newbrowser(dest["browser"]))
-                if logger != -1:
-                    dest["_logger"] = create_logger(logger)
+            if user_agent != -1:
+                dest["headers"].update(
+                    {"User-Agent": newagent(*_ua(dest["user_agent"]))}
+                )
+            if browser is not None and browser != -1:
+                dest["cookies"] = cookie_obj_init(dest["cookies"])
+                dest["cookies"].update(newbrowser(dest["browser"]))
+            if logger != -1:
+                dest["_logger"] = create_logger(logger)
             return dest
 
         def _settings_update(self):
@@ -320,9 +314,6 @@ def Session(
             method: str = "get",
             **settings,
         ) -> Any | Tuple[Any, Any]:
-            settings = self.get_settings(settings)
-            settings["__treerequests_passed"] = True
-
             resp = self.request(method, url, **settings)
 
             text = resp.text
