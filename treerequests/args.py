@@ -4,7 +4,7 @@ import re
 
 
 def valid_proxy_line(proxy):
-    part = proxy.partition(":")
+    part = proxy.partition(" ")
 
     if part[1] == "":
         return (part[0], "")
@@ -338,7 +338,7 @@ def args_section(
     add(
         "x",
         "proxy",
-        "Use the specified proxy, can be used multiple times. If set to URL it'll be used for all protocols, if in PROTOCOL URL format it'll be set only for given protocol, if in URL URL format it'll be set only for given path. If first character is '@' then headers are read from file",
+        "Use the specified proxy, can be used multiple times. If set to URL it'll be used for all protocols, if in PROTOCOL URL format it'll be set only for given protocol, if in URL URL format it'll be set only for given path. If first character is '@' then proxies are read from file",
         metavar="PROXY",
         action="extend",
         type=valid_proxy,
